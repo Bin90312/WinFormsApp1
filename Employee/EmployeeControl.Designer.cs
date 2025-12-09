@@ -39,11 +39,10 @@
             // dgvEmployees
             // 
             dgvEmployees.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvEmployees.Dock = DockStyle.Bottom;
-            dgvEmployees.Location = new Point(0, 153);
+            dgvEmployees.Location = new Point(0, 128);
             dgvEmployees.Name = "dgvEmployees";
             dgvEmployees.RowHeadersWidth = 51;
-            dgvEmployees.Size = new Size(942, 202);
+            dgvEmployees.Size = new Size(942, 342);
             dgvEmployees.TabIndex = 0;
             dgvEmployees.CellContentClick += dgvEmployees_CellContentClick;
             // 
@@ -95,7 +94,7 @@
             Controls.Add(btnAdd);
             Controls.Add(dgvEmployees);
             Name = "EmployeeControl";
-            Size = new Size(942, 355);
+            Size = new Size(942, 469);
             ((System.ComponentModel.ISupportInitialize)dgvEmployees).EndInit();
             ResumeLayout(false);
         }
