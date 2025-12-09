@@ -12,11 +12,15 @@ namespace WinFormsApp1.Employee
         public EmployeeControl()
         {
             InitializeComponent();
+
+            // GẮN SỰ KIỆN QUAN TRỌNG
+            dgvEmployees.CellClick += dgvEmployees_CellClick;
+
             LoadEmployees();
             SetupSearchComboBox();
         }
 
-        // ========================= LOAD DATA =========================
+        // ===================== LOAD NHÂN VIÊN =====================
 
         private void LoadEmployees()
         {
@@ -29,9 +33,10 @@ namespace WinFormsApp1.Employee
             da.Fill(employeeTable);
 
             dgvEmployees.DataSource = employeeTable;
+            selectedEmployeeId = -1; // reset sau mỗi lần load
         }
 
-        // ========================= COMBOBOX AUTO COMPLETE =========================
+        // ===================== COMBOBOX TÌM KIẾM =====================
 
         private void SetupSearchComboBox()
         {
@@ -41,27 +46,24 @@ namespace WinFormsApp1.Employee
 
             AutoCompleteStringCollection source = new();
 
-            if (employeeTable.Rows.Count > 0)
+            foreach (DataRow row in employeeTable.Rows)
             {
-                foreach (DataRow row in employeeTable.Rows)
+                if (row["FullName"] != DBNull.Value)
                 {
-                    if (row["FullName"] != DBNull.Value)
-                    {
-                        string name = row["FullName"].ToString()!;
-                        if (!string.IsNullOrWhiteSpace(name))
-                            source.Add(name);
-                    }
+                    string name = row["FullName"].ToString()!;
+                    if (!string.IsNullOrWhiteSpace(name))
+                        source.Add(name);
                 }
             }
 
             cboSearchName.AutoCompleteCustomSource = source;
 
-            // Tránh đăng ký event nhiều lần
+            // tránh gắn trùng event
             cboSearchName.TextChanged -= cboSearchName_TextChanged;
             cboSearchName.TextChanged += cboSearchName_TextChanged;
         }
 
-        // ========================= FILTER SEARCH =========================
+        // ===================== LỌC DỮ LIỆU =====================
 
         private void cboSearchName_TextChanged(object? sender, EventArgs e)
         {
@@ -73,28 +75,39 @@ namespace WinFormsApp1.Employee
                 return;
             }
 
-            DataView dv = employeeTable.DefaultView;
+            DataView dv = new(employeeTable);
             dv.RowFilter = $"FullName LIKE '%{keyword}%'";
             dgvEmployees.DataSource = dv;
+
+            // reset lựa chọn
+            selectedEmployeeId = -1;
         }
 
-        // ========================= CHỌN DÒNG =========================
+        // ===================== BẮT SỰ KIỆN CLICK DÒNG =====================
 
-        private void dgvEmployees_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dgvEmployees_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
             var row = dgvEmployees.Rows[e.RowIndex];
-            if (row.Cells["EmployeeID"].Value == null || row.Cells["EmployeeID"].Value == DBNull.Value) return;
+
+            if (row.Cells["EmployeeID"].Value is null ||
+                row.Cells["EmployeeID"].Value == DBNull.Value)
+            {
+                selectedEmployeeId = -1;
+                return;
+            }
 
             selectedEmployeeId = Convert.ToInt32(row.Cells["EmployeeID"].Value);
         }
 
-        // ========================= THÊM =========================
+        // ===================== THÊM =====================
 
         private void button1_Click(object sender, EventArgs e)
         {
-            using var f = new FormEmployee();   // ✅ dùng form chung
+            selectedEmployeeId = -1;
+
+            using var f = new FormEmployee(); // form dùng chung
             if (f.ShowDialog() == DialogResult.OK)
             {
                 LoadEmployees();
@@ -102,7 +115,7 @@ namespace WinFormsApp1.Employee
             }
         }
 
-        // ========================= SỬA =========================
+        // ===================== SỬA =====================
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
@@ -112,7 +125,7 @@ namespace WinFormsApp1.Employee
                 return;
             }
 
-            using var f = new FormEmployee(selectedEmployeeId);   // ✅ form chung
+            using var f = new FormEmployee(selectedEmployeeId);
             if (f.ShowDialog() == DialogResult.OK)
             {
                 LoadEmployees();
@@ -120,7 +133,7 @@ namespace WinFormsApp1.Employee
             }
         }
 
-        // ========================= XÓA =========================
+        // ===================== XÓA =====================
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -130,9 +143,9 @@ namespace WinFormsApp1.Employee
                 return;
             }
 
-            if (MessageBox.Show("Bạn có chắc muốn xóa?",
-                "Xác nhận",
-                MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            if (MessageBox.Show("Bạn có chắc muốn xóa?", "Xác nhận",
+                MessageBoxButtons.YesNo) != DialogResult.Yes)
+                return;
 
             using var conn = Database.GetConnection();
             conn.Open();
@@ -140,7 +153,7 @@ namespace WinFormsApp1.Employee
             using var cmd = new SqlCommand(
                 "DELETE FROM Employees WHERE EmployeeID=@id", conn);
 
-            cmd.Parameters.Add("@id", SqlDbType.Int).Value = selectedEmployeeId;
+            cmd.Parameters.AddWithValue("@id", selectedEmployeeId);
             cmd.ExecuteNonQuery();
 
             MessageBox.Show("Đã xóa thành công");
@@ -150,8 +163,7 @@ namespace WinFormsApp1.Employee
             SetupSearchComboBox();
         }
 
-        // ========================= EMPTY EVENTS =========================
-
+        // ✨ Tránh lỗi Designer
         private void dgvEmployees_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
     }
 }
