@@ -42,7 +42,7 @@
             dgvEmployees.Location = new Point(0, 128);
             dgvEmployees.Name = "dgvEmployees";
             dgvEmployees.RowHeadersWidth = 51;
-            dgvEmployees.Size = new Size(942, 342);
+            dgvEmployees.Size = new Size(857, 342);
             dgvEmployees.TabIndex = 0;
             dgvEmployees.CellContentClick += dgvEmployees_CellContentClick;
             // 
