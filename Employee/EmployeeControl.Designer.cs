@@ -95,7 +95,7 @@
             Controls.Add(btnAdd);
             Controls.Add(dgvEmployees);
             Name = "EmployeeControl";
-            Size = new Size(942, 469);
+            Size = new Size(857, 469);
             ((System.ComponentModel.ISupportInitialize)dgvEmployees).EndInit();
             ResumeLayout(false);
         }
