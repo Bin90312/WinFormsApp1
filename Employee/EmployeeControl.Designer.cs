@@ -83,6 +83,7 @@
             cboSearchName.Name = "cboSearchName";
             cboSearchName.Size = new Size(342, 28);
             cboSearchName.TabIndex = 4;
+            cboSearchName.Text = "Tìm kiếm ";
             // 
             // EmployeeControl
             // 
